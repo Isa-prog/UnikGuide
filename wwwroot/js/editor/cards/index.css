@@ -1,0 +1,12 @@
+.first-info-card
+{
+    position: relative;
+}
+
+.xmark
+{
+    position: absolute;
+    top: 0;
+    right: 0;
+    cursor: pointer
+}

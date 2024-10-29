@@ -1,0 +1,25 @@
+.addUser {
+  flex: 4;
+}
+.newUserTitle {
+  margin: 30px;
+  justify-content: flex-start;
+  align-items: center;
+  display: flex;
+}
+
+label {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.newUserItem > input {
+  height: 20px;
+  border: 1px solid gray;
+  border-radius: 5px;
+}
+.newUserSelect {
+  height: 40px;
+  border-radius: 5px;
+}
+

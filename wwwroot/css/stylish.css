@@ -1,0 +1,93 @@
+.first-info {
+  width: 80%;
+  margin: auto;
+  text-align: center;
+  padding-top: 100px;
+}
+h1 {
+  font-size: 36px;
+  font-weight: bold;
+  line-height: 22px;
+  padding: 10px;
+}
+.row {
+  margin-top: 5%;
+  display: flex;
+  justify-content: space-between;
+  padding-top: 30px;
+}
+.first-info-card {
+  flex-basis: 31%;
+  background: rgb(238, 238, 238);
+  border-radius: 30px;
+  margin-bottom: 5%;
+  padding: 20px 12px;
+  box-sizing: border-box;
+  transition: 0.5s;
+}
+.down-info {
+  width: 300px;
+  height: 200px;
+  border-radius: 30px;
+}
+h3 {
+  text-align: center;
+  font-weight: 600;
+  margin: 10px 0px;
+  padding-top: 10px;
+}
+.first-info-card:hover {
+  box-shadow: 0 0 20px 0px rgba(0, 0, 0, 0.2);
+}
+@media (max-width: 768px) {
+  .row {
+    flex-direction: column;
+  }
+}
+.second-info {
+  width: 80%;
+  margin: auto;
+  text-align: center;
+  padding-top: 60px;
+}
+
+.carousel-item {
+  height: 100vh;
+  min-height: 300px;
+  margin-top: 30px;
+  background-size: cover;
+}
+.carousel-item::before {
+  content: "";
+  display: block;
+  background: #000;
+  opacity: 0.7;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+.carousel-caption {
+  margin-bottom: 17%;
+}
+.contacts-icon {
+  width: 32px;
+  height: 32px;
+  margin: 20px;
+}
+.container {
+  max-width: 1170px;
+  margin: auto;
+}
+.rows {
+  display: flex;
+  flex-wrap: wrap;
+}
+ul {
+  list-style: none;
+}
+[contentEditable="true"] {
+  outline: none;
+}
+

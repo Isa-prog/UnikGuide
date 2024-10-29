@@ -1,0 +1,56 @@
+@page "/users"
+@attribute [Authorize]
+@inject IUserService UserService;
+@inject IMatToaster Toaster;
+@inject IMatDialogService MatDialogService;
+@inject UserManager<User> UserManager;
+
+@if (@users != null)
+{
+    <MatTable Items="@users" PageSize="10" class="mat-elevation-z5">
+        <MatTableHeader >
+            <th>Options</th>
+            <th>Role</th>
+            <th>Email</th>
+            <th>FullName</th>
+        </MatTableHeader>
+        <MatTableRow>
+            <td class="options">
+                <button class="button bg-danger" onclick="@(async () => RemoveUser(context))">
+                    <span class="oi oi-trash" aria-hidden="true"></span>
+                </button>
+                <button class="button bg-primary">
+                    <span class="oi oi-eye" aria-hidden="true"></span>
+                </button>
+            </td>
+            <td>@context.Role</td>
+            <td>@context.Email</td>
+            <td>@context.FullName</td>
+        </MatTableRow>
+    </MatTable>
+}
+@code {
+    private List<User> users = null!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        users = new(await UserService.GetUsersAsync());
+    }
+
+    private async void RemoveUser(User user)
+    {
+        if(!await MatDialogService.ConfirmAsync("Вы уверены?"))
+        {
+            return;
+        }
+        var task = UserService.RemoveUser(user);
+        await task;
+
+        if(task.IsCompletedSuccessfully)
+        {
+            Toaster.Add($"User \"{user.FullName}\" removed", MatToastType.Success, "Succes");
+        }
+        users.Remove(user);
+        this.StateHasChanged();
+    }
+}

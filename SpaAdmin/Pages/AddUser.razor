@@ -1,0 +1,65 @@
+@page "/adduser"
+@attribute [Authorize]
+@inject IUserService UserService;
+@inject ILogger<AddUser> logger;
+@inject IMatToaster Toaster;
+@inject IStringLocalizer<AddUser> Localizer;
+
+<div class="addUser">
+    <h1 class="newUserTitle">
+        New User
+        <MatProgressCircle Indeterminate="true" FourColored="true" Closed="@Progress" Style="margin-left : 1rem;" />
+    </h1>
+    <EditForm Model="@User" OnValidSubmit="@Submit" class="newUserForm">
+
+        <FluentValidationValidator />
+
+        <MatTextField @bind-Value="User.Login" Label="Login" Type="Login"/>
+        <MatTextField @bind-Value="User.Password" Label="Password" Type="password" autocomplete="new-password"/>
+        <MatTextField @bind-Value="User.ConfirmPassword" Label="Confirm Password" Type="password" autocomplete="new-password"/>
+        <MatTextField @bind-Value="User.FullName" Label="Full name"/>
+        <MatTextField @bind-Value="User.Email" Label="Email"/>
+        <MatButton Raised="true" Disabled="@(!Progress)">Create</MatButton>
+
+        <ValidationSummary />
+    </EditForm>
+</div>
+
+@code
+{
+    private UserViewModel User { get; set; } = new();
+    private bool Progress { get; set; } = true;
+    private UserRole[] _allRoles = Enum.GetValues(typeof(UserRole)).Cast<UserRole>().ToArray();
+
+    private async void Submit()
+    {
+        Progress = false;
+        logger.LogInformation("Work");
+
+        var task  = UserService.AddUser( new Models.User()
+        {
+            UserName = User.Login,
+            FullName = User.FullName,
+            Password = User.Password,
+            Email = User.Email,
+            Role = User.Role
+        });
+        try
+        {
+            await task;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error");
+            Toaster.Add("Ошибка при создании пользователя", MatToastType.Danger, "Ошибка");
+        }
+        if(task.IsCompletedSuccessfully)
+        {
+            logger.LogInformation("Done");
+            Toaster.Add("User added", MatToastType.Success, "Succes");
+        }
+        
+        Progress = true;
+        this.StateHasChanged();
+    }
+}

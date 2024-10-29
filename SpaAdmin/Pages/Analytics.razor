@@ -1,0 +1,93 @@
+@page "/analytics/{PostId:int?}"
+@inject IPostService PostService;
+@inject IPostAnalyticsService PostAnalyticsService;
+@inject IStringLocalizer<Analytics> Localizer;
+@inject IStringLocalizer<GlobalResources> GlobalLocalizer;
+
+@if (PostAnalytics != null)
+{
+    <div class="card m-3 p-2">
+        <MatTabGroup ActiveIndexChanged=@TabIndexChanged>
+            <MatTab Label=@Localizer["ForTheLastWeek"] />
+            <MatTab Label=@Localizer["ForTheLastMonth"] />
+            <MatTab Label=@Localizer["ForTheLastYear"] />
+        </MatTabGroup>
+        <RadzenChart>
+            <RadzenLineSeries Data=@VisitsDayCount CategoryProperty="Date" ValueProperty="Count">
+                <RadzenMarkers MarkerType="MarkerType.Square" />
+            </RadzenLineSeries>
+            <RadzenCategoryAxis Step=@DateStep FormatString=@FormatString>
+                <RadzenGridLines Visible="true" />
+            </RadzenCategoryAxis>
+            <RadzenValueAxis>
+                <RadzenGridLines Visible="true" />
+            </RadzenValueAxis>
+        </RadzenChart>
+    </div>
+    <div style="display : flex;">
+        <div class="card w-50 m-3 p-2">
+            <h3>@Localizer["SourcesOfVisits"]</h3>
+            <RadzenChart>
+                <RadzenPieSeries Data="@PostAnalytics.VisitsSources" Title="Revenue" CategoryProperty="Source"
+                ValueProperty="Count" />
+            </RadzenChart>
+        </div>
+        <div class="card w-50 m-3 p-2">
+            <h2>@Localizer["TotalVisits"]: @PostAnalytics.TotalVisits</h2>
+            <h3>@Localizer["TotalUniqueVisits"]: @PostAnalytics.TotalUniqueVisits</h3>
+        </div>
+    </div>
+}
+@if (PostId == null)
+{
+    <MatH1 style="color: red;">@GlobalLocalizer["NotFound"]</MatH1>
+}
+@code {
+    [Parameter]
+    public int? PostId { get; set; } = null;
+    private PostAnalytics? PostAnalytics { get; set; } = null;
+    private TimeSpan DateStep { get; set; } = TimeSpan.FromDays(1);
+    private string FormatString { get; set; } = "{0:dd.MM.yyyy}";
+    private IEnumerable<VisitsDayCount>? VisitsDayCount { get; set; } = null;
+    protected override async Task OnInitializedAsync()
+    {
+        if (PostId != null)
+        {
+            try
+            {
+                PostAnalytics = await PostAnalyticsService.GetPostAnalytics(
+                await PostService.GetPost(PostId.Value)
+                );
+                VisitsDayCount = PostAnalytics.LastWeek;
+            }
+            catch (Exception exc)
+            {
+                Console.WriteLine(exc);
+                PostId = null;
+                PostAnalytics = null;
+            }
+        }
+    }
+
+    public async Task TabIndexChanged(int index)
+    {
+        if (PostAnalytics != null) switch (index)
+            {
+                case 0:
+                    VisitsDayCount = PostAnalytics.LastWeek;
+                    DateStep = TimeSpan.FromDays(1);
+                    FormatString = "{0:dd.MM.yyyy}";
+                    break;
+                case 1:
+                    VisitsDayCount = PostAnalytics.LastMonth;
+                    DateStep = TimeSpan.FromDays(7);
+                    FormatString = "{0:dd.MM.yyyy}";
+                    break;
+                case 2:
+                    VisitsDayCount = PostAnalytics.LastYear;
+                    DateStep = TimeSpan.FromDays(30);
+                    FormatString = "{0:MMM}";
+                    break;
+            }
+    }
+}

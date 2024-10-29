@@ -1,0 +1,60 @@
+@page "/posts"
+@attribute [Authorize]
+@inject IPostContainerService PostContainerService;
+@inject NavigationManager NavigationManager;
+@inject IPostService PostService;
+@inject IMatToaster Toaster;
+@inject IMatDialogService MatDialogService;
+
+@if (posts != null)
+{
+    <MatTable Items="@posts" PageSize="10" class="mat-elevation-z5">
+        <MatTableHeader >
+            <th>Options</th>
+            <th>Name</th>
+            <th>Author</th>
+        </MatTableHeader>
+        <MatTableRow>
+            <td class="options">
+                <button class="button bg-danger" onclick="@(async () => RemovePost(context))">
+                    <span class="oi oi-trash" aria-hidden="true"></span>
+                </button>
+                <button class="button bg-primary" onclick="@( () => EditPost(context) )">
+                    <span class="oi oi-pencil" aria-hidden="true"></span>
+                </button>
+            </td>
+            <td>@context.Name</td>
+            <td></td>
+        </MatTableRow>
+    </MatTable>
+}
+@code {
+    private List<Post> posts = null!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        posts = new(await PostService.GetPosts());
+    }
+
+    private async void RemovePost(Post post)
+    {
+        if(!await MatDialogService.ConfirmAsync("Вы уверены?"))
+        {
+            return;
+        }
+        var task = PostService.RemovePost(post);
+        await task;
+
+        if(task.IsCompletedSuccessfully)
+        {
+            Toaster.Add($"Post \"{post.Name}\" removed", MatToastType.Success, "Succes");
+        }
+        posts.Remove(post);
+        this.StateHasChanged();
+    }
+
+    private  void EditPost(Post post)
+    {
+        NavigationManager.NavigateTo("editposts/" + post.Id);
+    }
+}

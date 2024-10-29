@@ -1,0 +1,68 @@
+@page "/editposts/{PostId:int?}"
+
+@attribute [Authorize]
+@inject IMatToaster Toaster;
+@inject IPostContainerService PostContainer;
+@inject IPostService PostService;
+@inject ILogger<EditPost> logger;
+
+@if (PostId == null)
+{
+    <MatTabGroup ActiveIndexChanged="@TabIndexChanged">
+        @foreach (var post in PostContainer.Posts)
+        {
+            <MatTab>
+                <LabelContent>
+                    @post.Name
+                    <MatIconButton Icon="@MatIconNames.Close" OnClick="@(_ => CloseTab(post))"></MatIconButton>
+                </LabelContent>
+            </MatTab>
+        }
+    </MatTabGroup>
+}
+@if (post != null)
+{
+    <RichTextEditor Post="@post" @ref="textEditor" />
+}
+
+@code {
+    [Parameter]
+    public int? PostId { get; set; }
+    RichTextEditor textEditor;
+    Post? post;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (PostId != null)
+        {
+            try
+            {
+                post = await PostService.GetPost(PostId.Value);
+            }
+            catch (InvalidOperationException exc)
+            {
+                Toaster.Add(exc.Message, MatToastType.Danger, "Ошибка");
+            }
+            return;
+        }
+        post = PostContainer.Posts.FirstOrDefault();
+    }
+
+    public async void CloseTab(Post post)
+    {
+        await PostService.SavePost(post);
+        PostContainer.Posts.Remove(post);
+        this.StateHasChanged();
+    }
+
+    public async void TabIndexChanged(int index)
+    {
+        if (index < 0)
+        {
+            post = null;
+            return;
+        }
+        logger.LogInformation($"{index}");
+        post = PostContainer.Posts[index];
+    }
+}

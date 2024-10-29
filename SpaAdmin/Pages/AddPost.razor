@@ -1,0 +1,57 @@
+@page "/addpost"
+@attribute [Authorize]
+@inject IPostContainerService PostContainer;
+@inject IPostService PostService;
+@inject IMatToaster Toaster;
+@inject NavigationManager NavigationManager;
+
+@inject IStringLocalizer<GlobalResources> GlobalLocalizer;
+@inject IStringLocalizer<AddPost> Localizer;
+
+<div class="addUser">
+    <h1 class="newUserTitle">
+        @Localizer["NewPost"]
+        <MatProgressCircle Indeterminate="true" FourColored="true" Closed="@Progress" Style="margin-left : 1rem;" />
+    </h1>
+    <EditForm Model="@Post" OnValidSubmit="@Submit" class="newUserForm">
+
+        <FluentValidationValidator />
+
+        <MatTextField @bind-Value="Post.Route" Label=@Localizer["Route"] />
+        <MatTextField @bind-Value="Post.Name" Label=@Localizer["Name"] />
+        <MatButton Raised="true" Disabled="@(!Progress)">@GlobalLocalizer["Create"]</MatButton>
+
+        <ValidationSummary />
+    </EditForm>
+</div>
+
+@code
+{
+    private PostViewModel Post { get; set; } = new();
+    private bool Progress { get; set; } = true;
+
+    private async void Submit()
+    {
+
+        @* Progress = false;
+
+        Post.Ru = $"<h1>{Localizer["JustWrite"]}</h1>";
+        try
+        {
+            await PostService.AddPost(Post);
+        }
+        catch
+        {
+            Toaster.Add(GlobalLocalizer["Error"], MatToastType.Danger, Localizer["ErrorPostDescription"]);
+
+            Progress = true;
+            this.StateHasChanged();
+            return;
+        }
+        PostContainer.Posts.Add(Post);
+        NavigationManager.NavigateTo("editposts");
+
+        Progress = true;
+        this.StateHasChanged(); *@
+    }
+}
