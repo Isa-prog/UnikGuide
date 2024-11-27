@@ -1,0 +1,51 @@
+﻿@inject IStringLocalizer<GlobalResources> Localizer;
+
+<div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">SpaAdmin</a>
+        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </div>
+</div>
+
+<div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
+    <nav class="flex-column">
+        <div class="nav-item px-3">
+            <NavLink Match="NavLinkMatch.All" class="nav-link" href="analytics">
+                <span class="oi oi-pie-chart" aria-hidden="true"></span> @Localizer["Analytics"]
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="adduser">
+                <span class="oi oi-person" aria-hidden="true"></span> @Localizer["AddUser"]
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="users">
+                <span class="oi oi-people" aria-hidden="true"></span> @Localizer["Users"]
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="addpost">
+                <span class="oi oi-brush" aria-hidden="true"></span> @Localizer["AddPost"]
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="posts">
+                <span class="oi oi-script" aria-hidden="true"></span> @Localizer["Posts"]
+            </NavLink>
+        </div>
+    </nav>
+</div>
+
+@code {
+    private bool collapseNavMenu = true;
+
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+}

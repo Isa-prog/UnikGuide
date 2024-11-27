@@ -1,0 +1,12 @@
+@page "{id:int}"
+@using Destinationosh.Pages
+@using Microsoft.Extensions.Localization
+@using Microsoft.AspNetCore.Mvc.Localization
+@using Destinationosh.SpaAdmin.Pages
+@model PostPageModel
+@{
+    Layout = "_Layout";
+}
+<div class="ql-snow">
+    @Html.Raw(Model.Post.Ru)
+</div>

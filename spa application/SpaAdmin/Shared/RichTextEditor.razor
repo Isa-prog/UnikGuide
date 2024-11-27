@@ -1,0 +1,86 @@
+@inject ILogger<RichTextEditor> Logger;
+@inject IPostService PostService;
+@inject IMatToaster Toaster;
+@inject IStringLocalizer<GlobalResources> GlobalLocalizer;
+@inject IStringLocalizer<RichTextEditor> Localizer;
+
+@if (Post != null)
+{
+    <RadzenHtmlEditor @bind-Value=@Post.Ru UploadUrl="/image/upload" Execute=@OnExecute Style="height: 500px;">
+        <RadzenHtmlEditorCustomTool CommandName="save" Icon="save" Title=@GlobalLocalizer["Save"] />
+        <RadzenHtmlEditorSeparator />
+        <RadzenHtmlEditorUndo Title=@Localizer["Undo"] />
+        <RadzenHtmlEditorRedo Title=@Localizer["Redo"] />
+        <RadzenHtmlEditorSeparator />
+        <RadzenHtmlEditorBold Title=@Localizer["Bold"] />
+        <RadzenHtmlEditorItalic Title=@Localizer["Italic"] />
+        <RadzenHtmlEditorUnderline Title=@Localizer["Underline"] />
+        <RadzenHtmlEditorStrikeThrough Title=@Localizer["Strikethrough"] />
+        <RadzenHtmlEditorSeparator />
+        <RadzenHtmlEditorAlignLeft Title=@Localizer["AlignLeft"] />
+        <RadzenHtmlEditorAlignCenter Title=@Localizer["AlignCenter"] />
+        <RadzenHtmlEditorAlignRight Title=@Localizer["AlignRight"] />
+        <RadzenHtmlEditorJustify Title=@Localizer["AlignJustify"] />
+        <RadzenHtmlEditorSeparator />
+        <RadzenHtmlEditorIndent Title=@Localizer["Indent"] />
+        <RadzenHtmlEditorOutdent Title=@Localizer["Outdent"] />
+        <RadzenHtmlEditorUnorderedList Title=@Localizer["UnorderedList"] />
+        <RadzenHtmlEditorOrderedList Title=@Localizer["OrderedList"] />
+        <RadzenHtmlEditorSeparator />
+        <RadzenHtmlEditorColor Title=@Localizer["Color"] />
+        <RadzenHtmlEditorBackground Title=@Localizer["Background"] />
+        <RadzenHtmlEditorRemoveFormat Title=@Localizer["RemoveFormat"] />
+        <RadzenHtmlEditorSeparator />
+        <RadzenHtmlEditorSubscript Title=@Localizer["Subscript"] />
+        <RadzenHtmlEditorSuperscript Title=@Localizer["Superscript "] />
+        <RadzenHtmlEditorSeparator />
+
+        <RadzenHtmlEditorLink Title=@Localizer["Link"] 
+                              UrlText=@Localizer["LinkUrlText"] 
+                              LinkText=@Localizer["LinkLinkText"]
+                              OpenInNewWindowText=@Localizer["LinkOpenInNewWindowText"]
+                              OkText=@GlobalLocalizer["Ok"]
+                              CancelText=@GlobalLocalizer["Cancel"] />
+                              
+        <RadzenHtmlEditorUnlink Title=@Localizer["Unlink"] />
+        <RadzenHtmlEditorSeparator />
+        <RadzenHtmlEditorImage Title=@Localizer["Image"] />
+        <RadzenHtmlEditorFontName Title=@Localizer["FontName"] />
+        <RadzenHtmlEditorFontSize Title=@Localizer["FontSize"] />
+        <RadzenHtmlEditorFormatBlock Title=@Localizer["FormatBlock"] />
+    </RadzenHtmlEditor>
+}
+
+
+@code
+{
+    [Parameter]
+    public Post Post { get; set; }
+
+    protected override void OnInitialized()
+    {
+        Logger.LogInformation("Init");
+    }
+
+    private async Task Save()
+    {
+        try
+        {
+            await PostService.SavePost(Post);
+            Toaster.Add(Localizer["PostSaved"], MatToastType.Success, GlobalLocalizer["Success"]);
+        }
+        catch (Exception ex)
+        {
+            Toaster.Add(Localizer["FailedToSavePost"], MatToastType.Danger, GlobalLocalizer["Error"]);
+        }
+    }
+
+    private async Task OnExecute(HtmlEditorExecuteEventArgs args)
+    {
+        if(args.CommandName == "save")
+        {
+            await Save();
+        }
+    }
+
+}

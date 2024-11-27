@@ -1,0 +1,68 @@
+﻿@inherits LayoutComponentBase
+
+@using Microsoft.Extensions.Options;
+@using Destinationosh.Middlewares;
+
+@inject AuthenticationStateProvider AuthenticationStateProvider;
+@inject ILogger<MainLayout> Logger;
+@inject NavigationManager NavigationManager;
+@inject IOptions<SupportedCultureOptions> CultureOptions;
+@inject IStringLocalizer<GlobalResources> Localizer;
+
+<PageTitle>SpaAdmin</PageTitle>
+
+<div class="page">
+    <div class="sidebar">
+        <NavMenu />
+    </div>
+
+    <main>
+        <div class="top-row px-4">
+            <RadzenDropDown Change=@( _ => ChangeLanguage()) @bind-Value=@Culture Data="@CultureOptions.Value.SupportedCultures.Keys.ToArray()"/>
+            <MatButton Label=@Localizer["Logout"] OnClick="@( _ => Logout())" />
+        </div>
+
+        <article class="content px-4">
+            @Body
+        </article>
+    </main>
+</div>
+
+@code {
+
+    private string? Culture { get; set; }
+    private SupportedCultureOptions _supportedCultureOptions;
+
+    protected override void OnInitialized()
+    {
+        _supportedCultureOptions = CultureOptions.Value;
+        Culture = _supportedCultureOptions.SupportedCultures.First(
+            kVPair => kVPair.Value == CultureInfo.CurrentCulture.Name
+        ).Key;
+        Logger.LogInformation(CultureInfo.CurrentCulture.Name);
+        AuthenticationStateProvider.AuthenticationStateChanged  += OnStateChanged;
+    }
+
+    private async void OnStateChanged(Task<AuthenticationState> task)
+    {
+        var state = await task;
+        if(state.User.Identity.IsAuthenticated)
+        {
+            Logger.LogInformation("User is authenticated");
+        }
+        else
+        {
+            Logger.LogInformation("User is not authenticated");
+            NavigationManager.NavigateTo("?handler=logout", true);
+        }
+    }
+    private void ChangeLanguage()
+    {
+        NavigationManager.NavigateTo($"?handler=changeLanguage&lang={_supportedCultureOptions.SupportedCultures[Culture]}", true);
+    }
+
+    private void Logout()
+    {
+        NavigationManager.NavigateTo("?handler=logout", true);
+    }
+}
