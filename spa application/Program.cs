@@ -13,6 +13,7 @@ using Destinationosh.SpaAdmin.ViewModels;
 var builder = WebApplication.CreateBuilder(args);
 
 string connection = builder.Configuration.GetConnectionString("MySql");
+Console.WriteLine($"Connection String: {connection}");
 
 builder.Services.Configure<SupportedCultureOptions>( builder.Configuration.GetSection("SupportedCultureOptions"));
 builder.Services.Configure<JsonOptions>(options =>
